@@ -1,0 +1,14 @@
+/* You can add global styles to this file, and also import other style files */
+.logo {
+  background-image: url("assets/images/scania.png") !important;
+  background-size: cover !important;
+  height: 52px !important;
+  position: relative;
+  top: -10px;
+}
+
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}

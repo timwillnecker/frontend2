@@ -1,0 +1,126 @@
+<p-toast position="top-right"></p-toast>
+<div class="p-grid">
+    <div class="p-col">
+        <p-panel>
+            <p-header>
+                <div>
+                    <div style="float: left; margin-top: 6px">
+                        <span>Kontaktinformationen</span>
+                    </div>
+                    <div style="float: right">
+                        <button pButton label="Bearbeiten" class="circleButton" (click)="editContact(contact)"></button>
+                    </div>
+                </div>
+            </p-header>
+            <p-card *ngIf="contact?.id > 0">
+                <div class="p-grid">
+                    <div class="p-col-12" style="border-bottom: 1px solid">
+                        <span>{{getContactType(contact?.contactType)}}</span>
+                    </div>
+                    <div class="p-col-12">
+                        <span>{{getSalutation(contact?.salutation)}} {{contact?.surname}} {{contact?.secondname}} {{contact?.firstname}}</span>
+                    </div>
+                    <div class="p-col-12">
+                        <span>Geburtstag: {{contact?.birthday | date: 'dd.MM.yyyy' }}</span>
+                    </div>
+                    <div class="p-col-12">
+                        <span>Quelle: {{getContactSource(contact?.contactSource)}}</span>
+                    </div>
+                    <div class="p-col-12">
+                        <span>Bemerkung: {{contact?.comment}}</span>
+                    </div>
+                </div>
+            </p-card>
+        </p-panel>
+    </div>
+    <div class="p-col">
+        <p-panel>
+        <p-header>
+            <div>
+                <div style="float: left; margin-top: 6px">
+                    <span>Adresse</span>
+                </div>
+                <div style="float: right">
+                    <button pButton label="Hinzufügen" class="circleButton" (click)="addAddress()"></button>
+                </div>
+            </div>
+        </p-header>
+            <div *ngFor="let a of contact?.addresses" style="overflow: hidden; width: 100%; margin-top: 5px;">
+               <p-card >
+                    <div class="p-grid">
+                        <div class="p-col-6" style="border-bottom: 1px solid">
+                            <span>{{getAddressType(a?.addressType)}}</span>
+                        </div>
+                       <div class="p-col-6" style="border-bottom: 1px solid">
+                           <span class="hyperlink" style="float: right" (click)="changeAddress(a)">BEARBEITEN</span>
+                       </div>
+                       <div class="p-col-12">
+                           <span>{{a?.street}}</span>
+                       </div>
+                       <div class="p-col-12">
+                           <span>{{a?.postCode}} {{a?.city}}</span>
+                       </div>
+                        <div class="p-col-12">
+                            <span>{{getCountry(a?.country)}}</span>
+                        </div>
+                   </div>
+               </p-card>
+            </div>
+        </p-panel>
+    </div>
+</div>
+<!--<div class="p-grid">-->
+<!--    <div class="p-col">-->
+<!--        <p-panel header="Telefon">-->
+<!--        </p-panel>-->
+<!--    </div>-->
+<!--    <div class="p-col">-->
+<!--        <p-panel header="E-Mail">-->
+
+<!--        </p-panel>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--<div class="p-grid">-->
+<!--    <div class="p-col">-->
+<!--        <p-panel header="Website">-->
+<!--        </p-panel>-->
+<!--    </div>-->
+<!--    <div class="p-col">-->
+<!--        <p-panel header="SocialMedia">-->
+
+<!--        </p-panel>-->
+<!--    </div>-->
+<!--</div>-->
+
+<div>
+    <button pButton (click)="saveContact()" label="Speichern" class="circleButton" ></button>
+</div>
+
+<p-sidebar [(visible)]="sidebarCreateAddress"
+           [style]="{width:'50%', 'overflow': 'scroll', backgroundColor: '#F7F7F7'}"
+           position="right"
+           [showCloseIcon]="false">
+    <button pButton
+            class="flat circleButton"
+            icon="fas fa-times"
+            (click)="sidebarCreateAddress = !sidebarCreateAddress">
+    </button>
+    <div class="marginTop20px">
+        <app-address [id]="contact?.contactReference" ></app-address>
+    </div>
+</p-sidebar>
+
+<p-sidebar [(visible)]="sidebarEditContact"
+           [style]="{width:'50%', 'overflow': 'scroll', backgroundColor: '#F7F7F7'}"
+           position="right"
+           [showCloseIcon]="false">
+    <button pButton
+            class="flat circleButton"
+            icon="fas fa-times"
+            (click)="sidebarEditContact = !sidebarEditContact">
+    </button>
+    <div class="marginTop20px">
+        <app-contact></app-contact>
+    </div>
+</p-sidebar>

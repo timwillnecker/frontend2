@@ -1,0 +1,53 @@
+            <div>
+                <app-dropdownfield title="Anrede" (outputSelectedValue)="inputChangeSalutation($event)" [value]="salutations" [selectedValue]="selectedSalutation"></app-dropdownfield>
+            </div>
+            <div class="marginTop5px">
+                <app-inputfield title="Nachname*" (outputValue)="inputChangeSurname($event)"  [value]="contact?.surname"></app-inputfield>
+            </div>
+            <div class="marginTop5px">
+                <app-inputfield title="Vorname*" (outputValue)="inputChangeFirstname($event)" [value]="contact?.firstname"></app-inputfield>
+            </div>
+            <div class="marginTop5px">
+                <app-inputfield title="Zweiter Vorname" (outputValue)="inputChangeSecondname($event)" [value]="contact?.secondname"></app-inputfield>
+            </div>
+          <!--  <div class="marginTop5px">
+                <label style="color: #757575">Foto</label>
+                <div>
+                    <p-fileUpload
+                            customUpload="true"
+                            mode="basic"
+                            chooseLabel="Datei auswählen"
+                            (uploadHandler)="onUpload($event)">
+                    </p-fileUpload>
+                </div>
+                <div>
+                    <label class="marginTop5px" style="font-style: oblique">
+                        Dateigröße darf den Wert 3 MB nicht überschreiten.
+                    </label>
+                </div>
+            </div>-->
+
+
+            <div class="marginTop5px">
+                <app-calendarfield title="Geburtstag" (outputValue)="inputChangeBirthday($event)"
+                                   [value]="contact?.birthday"></app-calendarfield>
+            </div>
+
+            <div class="marginTop5px">
+                <app-dropdownfield title="Kundentyp" (outputSelectedValue)="inputChangeContactType($event)"
+                                   [value]="contactType" [selectedValue]="selectedContactType"></app-dropdownfield>
+            </div>
+
+            <div class="marginTop5px">
+                <app-dropdownfield title="Quelle" (outputSelectedValue)="inputChangeContactSource($event)"
+                                   [value]="contactSource" [selectedValue]="selectedContactSource"></app-dropdownfield>
+            </div>
+
+            <div class="marginTop5px">
+                <app-inputtextarea title="Kommentar" (outputValue)="inputChangeContactComment($event)"
+                                   [value]="contact?.comment"></app-inputtextarea>
+            </div>
+
+            <div class="marginTop5px">
+                <button style="width: 100%" pButton class="circleButton" label="Kontakt speichern" (click)="saveContact()"></button>
+            </div>

@@ -1,0 +1,13 @@
+<div>
+    <label style="color: #757575">{{title}}</label>
+    <div id="inputField" style="border: 1px solid; padding: 5px">
+        <p-dropdown
+                [options]="value"
+                [(ngModel)]="selectedValue"
+                [autoDisplayFirst]="false"
+                optionLabel="label"
+                (onChange)="ngOnChanges()"
+                placeholder="Nicht ausgewählt"
+                [style]="{width:'100%'}"></p-dropdown>
+    </div>
+</div>

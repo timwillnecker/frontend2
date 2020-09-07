@@ -1,0 +1,18 @@
+    <div>
+        <app-dropdownfield title="Adresstyp" [value]="addressTypes" [selectedValue]="selectedAddressType" (outputSelectedValue)="inputChangeAddressType($event)"></app-dropdownfield>
+    </div>
+    <div class="marginTop5px">
+        <app-inputfield title="Straße, Hausnummer" [value]="address?.street" (outputValue)="inputChangeStreet($event)"></app-inputfield>
+    </div>
+    <div class="marginTop5px">
+        <app-inputfield title="Stadt" [value]="address?.city" (outputValue)="inputChangeCity($event)"></app-inputfield>
+    </div>
+    <div class="marginTop5px">
+        <app-inputfield title="PLZ" [value]="address?.postCode" (outputValue)="inputChangePostCode($event)"></app-inputfield>
+    </div>
+    <div class="marginTop5px">
+        <app-dropdownfield title="Land" [value]="countries" [selectedValue]="selectedCountry" (outputSelectedValue)="inputChangeCountry($event)"></app-dropdownfield>
+    </div>
+    <div class="marginTop5px">
+        <button style="width: 100%" pButton class="circleButton" label="Adresse speichern" (click)="addAddressToContact()"></button>
+    </div>

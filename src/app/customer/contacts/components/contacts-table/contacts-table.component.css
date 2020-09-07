@@ -1,0 +1,5 @@
+.openContact:hover {
+    cursor: pointer;
+    background-color: #FF5722 !important;
+    color: white;
+}

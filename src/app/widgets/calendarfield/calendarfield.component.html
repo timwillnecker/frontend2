@@ -1,0 +1,16 @@
+<div>
+    <label style="color: #757575">{{title}}</label>
+    <div id="inputField" style="border: 1px solid; padding: 5px">
+        <p-calendar
+                [(ngModel)]="value"
+                dateFormat="dd.mm.yy"
+                (onSelect)="onChangeInputValues()"
+                appCalendarDefaultsDirective
+                [monthNavigator]="true"
+                [yearNavigator]="true"
+                yearRange="1950:2030"
+                [style]="{width:'100%'}"
+                [inputStyle]="{width: '100%'}"
+                showIcon="true"></p-calendar>
+    </div>
+</div>

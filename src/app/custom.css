@@ -1,0 +1,36 @@
+.circleButton {
+    background-color: #FF5722 !important;
+}
+
+.circleButton:hover {
+    background-color: #757575 !important;
+}
+
+
+.defaultMarginTop {
+    margin-top: 15px;
+}
+
+.marginTop5px{
+    margin-top: 5px;
+}
+
+.marginTop20px {
+    margin-top: 20px;
+}
+
+.floatLabelFullSize {
+    width: 90%;
+}
+.hardShade{
+    background: #FAFAFA;
+    border: 1px solid #DDD;
+}
+.hyperlink {
+    color: blue;
+}
+.hyperlink:hover {
+    color: blue;
+    text-decoration: underline blue;
+    cursor: pointer;
+}

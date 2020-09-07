@@ -1,0 +1,14 @@
+<p-table [value]="contacts">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>KONTAKTE</th>
+            <th>ERSTELLT AM</th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-contact>
+        <tr (click)="openContact(contact.contactReference)" class="openContact"  pTooltip="{{contact.firstname}} {{contact.surname}} anzeigen" tooltipPosition="bottom">
+            <td>{{contact.firstname}} {{contact.surname}}</td>
+            <td>{{contact.created | date: 'dd.MM.yyyy'}}</td>
+        </tr>
+    </ng-template>
+</p-table>
