@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {Contact} from '../../../model/Contact';
+import {Address, Contact} from '../../../model/Contact';
 import {MessageService, SelectItem} from 'primeng/api';
 import {environment} from '../../../../../../environments/environment';
 import {AuthorizationService} from '../../../../authorization/authorization.service';
@@ -14,15 +14,15 @@ import {Router} from '@angular/router';
 })
 export class ContactComponent implements OnInit {
 
-  public contact: Contact;
+  public contact: Contact = new Contact();
 
   public salutations: SelectItem[];
   public selectedSalutation: SelectItem;
 
-  public contactType: SelectItem[];
+  public contactTypes: SelectItem[];
   public selectedContactType: SelectItem;
 
-  public contactSource: SelectItem[];
+  public contactSources: SelectItem[];
   public selectedContactSource: SelectItem;
 
   constructor(private authorizationService: AuthorizationService,
@@ -32,119 +32,79 @@ export class ContactComponent implements OnInit {
               private messageService: MessageService) { }
 
   ngOnInit() {
+    this.loadContactSalutations();
+    this.loadContactTypes();
+    this.loadContactSources();
     this.contactService.registerContactComponent(this);
-    this.loadSaltutations();
-    this.loadContactType();
-    this.loadContactSource();
   }
 
-  public loadSaltutations () {
-    const url = environment.services.customer.query + 'contact/query/salutations';
-    const headers = this.authorizationService.header();
-    this.http.get<SelectItem []>(url, {headers: headers})
-        .subscribe(response => {
-          this.salutations = response;
-        });
-  }
-
-  public loadContactType () {
-    const url = environment.services.customer.query + 'contact/query/contacttype';
-    const headers = this.authorizationService.header();
-    this.http.get<SelectItem []>(url, {headers: headers})
-        .subscribe(response => {
-          this.contactType = response;
-        });
-  }
-
-  public loadContactSource () {
-    const url = environment.services.customer.query + 'contact/query/contactsource';
-    const headers = this.authorizationService.header();
-    this.http.get<SelectItem []>(url, {headers: headers})
-        .subscribe(response => {
-          this.contactSource = response;
-        });
-  }
-
-  inputChangeSurname(value: any) {
+  public inputChangeSurname(value: string) {
     this.contact.surname = value;
   }
 
-  inputChangeFirstname(value: any) {
-    this.contact.firstname = value;
+  public inputChangeFirstname(value: any) {
+      this.contact.firstname = value;
   }
 
-  inputChangeSecondname(value: any) {
+  public inputChangeSecondname(value: any) {
     this.contact.secondname = value;
   }
 
-  inputChangeSalutation(value: SelectItem) {
+  public inputChangeSalutation(value: SelectItem) {
     if ( value !== undefined) {
       this.contact.salutation = value.value;
     }
   }
 
-  inputChangeBirthday(value: Date) {
+  public inputChangeBirthday(value: Date) {
     this.contact.birthday = value;
   }
 
-  inputChangeContactType(value: SelectItem) {
+  public inputChangeContactType(value: SelectItem) {
     if ( value !== undefined) {
       this.contact.contactType = value.value;
     }
   }
 
-  inputChangeContactSource(value: SelectItem) {
+  public inputChangeContactSource(value: SelectItem) {
     if ( value !== undefined) {
       this.contact.contactSource = value.value;
     }
   }
 
-  inputChangeContactComment(value: string) {
+  public inputChangeContactComment(value: string) {
     this.contact.comment = value;
   }
 
-  initContact(contact: Contact) {
-    this.contact = contact;
-    if (this.contact.id === -1) {
-      this.selectedContactSource = undefined;
-      this.selectedContactType = undefined;
-      this.selectedSalutation = undefined;
-    } else {
-      this.initContactSource();
-      this.initContactType();
-      this.initSalutation();
-    }
+
+  public loadContactSalutations () {
+    this.contactService.loadContactSalutations().subscribe(response => {
+      this.salutations = response;
+    });
+  }
+  public initSalutation() {
+    this.selectedSalutation = this.contactService.initSelectedItem(this.salutations, this.contact.salutation);
   }
 
-  public initSalutation() {
-    if (this.salutations !== undefined) {
-      this.salutations.forEach( s => {
-        if (this.contact.salutation === s.value) {
-          this.selectedSalutation = s;
-        }
-      });
-    }
-  }
-  public initContactType() {
-    if (this.contactType !== undefined) {
-      this.contactType.forEach( c => {
-        if (this.contact.contactType === c.value) {
-          this.selectedContactType = c;
-        }
-      });
-    }
+  public loadContactSources () {
+    this.contactService.loadContactSources().subscribe(response => {
+      this.contactSources = response;
+    });
   }
   public initContactSource() {
-    if (this.contactSource !== undefined) {
-      this.contactSource.forEach( c => {
-        if (this.contact.contactSource === c.value) {
-          this.selectedContactSource = c;
-        }
-      });
-    }
+    this.selectedContactSource = this.contactService.initSelectedItem(this.contactSources, this.contact.contactSource);
   }
 
-  saveContact() {
+  public loadContactTypes () {
+    this.contactService.loadContactTypes().subscribe(response => {
+      this.contactTypes = response;
+    });
+  }
+  public initContactType() {
+    this.selectedContactType = this.contactService.initSelectedItem(this.contactTypes, this.contact.contactType);
+  }
+
+  public saveContact() {
     if (this.contact.id < 0) {
       this.createContact();
     } else {
@@ -152,13 +112,14 @@ export class ContactComponent implements OnInit {
     }
   }
 
-  private editContact() {
-    const url = environment.services.customer.query + 'contact/cmd/';
+  public editContact() {
+    const url = environment.services.customer.query + 'contact/cmd/event/CHANGED';
     const headers = this.authorizationService.header();
     this.http.put<Contact>(url, this.contact, {headers: headers})
         .subscribe(response => {
           if (response.contactReference !== undefined && response.contactReference !== '') {
             this.router.navigate(['/customer/' + response.contactReference]);
+            this.contactService.contactPageComponent.reload(response.contactReference);
             this.messageService.add({severity: 'success', summary: 'Kontakt erfolgreich geändert', detail: response.firstname + ' ' + response.surname});
           } else {
             this.messageService.add({severity: 'error', summary: 'Kontakt konnte nicht geändert werden'});
@@ -169,12 +130,13 @@ export class ContactComponent implements OnInit {
   }
 
   public createContact() {
-    const url = environment.services.customer.query + 'contact/cmd/';
+    const url = environment.services.customer.query + 'contact/cmd/event/CREATED';
     const headers = this.authorizationService.header();
     this.http.post<Contact>(url, this.contact, {headers: headers})
         .subscribe(response => {
           if (response.contactReference !== undefined && response.contactReference !== '') {
             this.router.navigate(['/customer/' + response.contactReference]);
+            this.contactService.contactPageComponent.reload(response.contactReference);
             this.messageService.add({severity: 'success', summary: 'Kontakt erfolgreich angelegt', detail: response.firstname + ' ' + response.surname});
           } else {
             this.messageService.add({severity: 'error', summary: 'Kontakt konnte nicht angelegt werden'});
@@ -182,5 +144,20 @@ export class ContactComponent implements OnInit {
         }, error => {
           this.messageService.add({severity: 'error', summary: 'Kontakt konnte nicht angelegt werden', detail: error});
         });
+  }
+
+
+  initContact(contact: Contact) {
+    if (contact.id < 0 ) {
+      this.contact = new Contact();
+      this.contact.salutation = undefined;
+      this.contact.contactType = undefined;
+      this.contact.contactSource = undefined;
+    } else {
+      this.contact = contact;
+      this.initSalutation();
+      this.initContactType();
+      this.initContactSource();
+    }
   }
 }

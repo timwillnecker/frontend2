@@ -92,3 +92,16 @@ export class Contact {
 export class ContactRestResult {
     contacts: Contact [];
 }
+
+export class ContactSearchResponse {
+    id: number;
+    contactreference: string;
+    created: Date;
+    firstname: string;
+    secondname: string;
+    surname: string;
+}
+
+export class ContactSearchResponseRestResult {
+    searchResponses: [];
+}

@@ -35,16 +35,16 @@
 
             <div class="marginTop5px">
                 <app-dropdownfield title="Kundentyp" (outputSelectedValue)="inputChangeContactType($event)"
-                                   [value]="contactType" [selectedValue]="selectedContactType"></app-dropdownfield>
+                                   [value]="contactTypes" [selectedValue]="selectedContactType"></app-dropdownfield>
             </div>
 
             <div class="marginTop5px">
-                <app-dropdownfield title="Quelle" (outputSelectedValue)="inputChangeContactSource($event)"
-                                   [value]="contactSource" [selectedValue]="selectedContactSource"></app-dropdownfield>
+                <app-dropdownfield title="Quelle" (outputSelectedValue)=" inputChangeContactSource($event)"
+                                   [value]="contactSources" [selectedValue]="selectedContactSource"></app-dropdownfield>
             </div>
 
             <div class="marginTop5px">
-                <app-inputtextarea title="Kommentar" (outputValue)="inputChangeContactComment($event)"
+                <app-inputtextarea title="Bemerkung" (outputValue)="inputChangeContactComment($event)"
                                    [value]="contact?.comment"></app-inputtextarea>
             </div>
 
