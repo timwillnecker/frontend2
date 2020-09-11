@@ -15,16 +15,16 @@
             <p-card *ngIf="contact?.id > 0">
                 <div class="p-grid">
                     <div class="p-col-12" style="border-bottom: 1px solid">
-                        <span>{{getContactType(contact?.contactType)}}</span>
+                        <span >{{getSelectedItemLabel(contactTypes, contact?.contactType) | uppercase}}</span>
                     </div>
                     <div class="p-col-12">
-                        <span>{{getSalutation(contact?.salutation)}} {{contact?.surname}} {{contact?.secondname}} {{contact?.firstname}}</span>
+                        <span>{{getSelectedItemLabel(salutations, contact?.salutation)}} {{contact?.surname}} {{contact?.secondname}} {{contact?.firstname}}</span>
                     </div>
                     <div class="p-col-12">
                         <span>Geburtstag: {{contact?.birthday | date: 'dd.MM.yyyy' }}</span>
                     </div>
                     <div class="p-col-12">
-                        <span>Quelle: {{getContactSource(contact?.contactSource)}}</span>
+                        <span>Quelle: {{getSelectedItemLabel(contactSources, contact?.contactSource)}}</span>
                     </div>
                     <div class="p-col-12">
                         <span>Bemerkung: {{contact?.comment}}</span>
@@ -41,7 +41,7 @@
                     <span>Adresse</span>
                 </div>
                 <div style="float: right">
-                    <button pButton label="Hinzufügen" class="circleButton" (click)="addAddress()"></button>
+                    <button pButton label="Hinzufügen" class="circleButton" (click)="editAddress(undefined)"></button>
                 </div>
             </div>
         </p-header>
@@ -49,10 +49,10 @@
                <p-card >
                     <div class="p-grid">
                         <div class="p-col-6" style="border-bottom: 1px solid">
-                            <span>{{getAddressType(a?.addressType)}}</span>
+                            <span>{{getSelectedItemLabel(addressTypes, a?.addressType)}}</span>
                         </div>
                        <div class="p-col-6" style="border-bottom: 1px solid">
-                           <span class="hyperlink" style="float: right" (click)="changeAddress(a)">BEARBEITEN</span>
+                           <span class="hyperlink" style="float: right" (click)="editAddress(a)">BEARBEITEN</span>
                        </div>
                        <div class="p-col-12">
                            <span>{{a?.street}}</span>
@@ -61,7 +61,7 @@
                            <span>{{a?.postCode}} {{a?.city}}</span>
                        </div>
                         <div class="p-col-12">
-                            <span>{{getCountry(a?.country)}}</span>
+                            <span>{{getSelectedItemLabel(countries, a?.country)}}</span>
                         </div>
                    </div>
                </p-card>
@@ -92,10 +92,6 @@
 <!--        </p-panel>-->
 <!--    </div>-->
 <!--</div>-->
-
-<div>
-    <button pButton (click)="saveContact()" label="Speichern" class="circleButton" ></button>
-</div>
 
 <p-sidebar [(visible)]="sidebarCreateAddress"
            [style]="{width:'50%', 'overflow': 'scroll', backgroundColor: '#F7F7F7'}"

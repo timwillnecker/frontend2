@@ -3,9 +3,9 @@ import {InputwithdropdownComponent} from '../../../../../widgets/inputwithdropdo
 import {AddressComponent} from '../../../components/contactInformation/address/address.component';
 import {ContactService} from '../../../application/contact.service';
 import {Router} from '@angular/router';
-import {Contact, ContactRestResult} from '../../../model/Contact';
+import {Contact, ContactRestResult, ContactSearchResponseRestResult} from '../../../model/Contact';
 import {environment} from '../../../../../../environments/environment';
-import {SelectItem} from 'primeng/api';
+import {MessageService, SelectItem} from 'primeng/api';
 import {AuthorizationService} from '../../../../authorization/authorization.service';
 import {HttpClient} from '@angular/common/http';
 
@@ -16,37 +16,32 @@ import {HttpClient} from '@angular/common/http';
 })
 export class ContactsPageComponent implements OnInit {
 
-  sidebarCreateCustomer = false;
 
-  @ViewChild('address', {static: true, read: ViewContainerRef}) target: ViewContainerRef;
-  public componentRef: ComponentRef<any>;
-
-  public contacts: Contact[];
+  public contactSearchResponseRestResult: ContactSearchResponseRestResult;
 
   constructor(
-      private componentFactoryResolver: ComponentFactoryResolver,
-      private contactService: ContactService,
       private router: Router,
       private authorizationService: AuthorizationService,
-      private http: HttpClient) { }
+      private http: HttpClient,
+      private messageService: MessageService) { }
 
   ngOnInit() {
-    this.contactService.registerContactsPageComponent(this);
-    this.loadContacts();
+    this.loadContactSearchResponse();
   }
 
-  public loadContacts() {
-    const url = environment.services.customer.query + 'contact/query/allcurrents';
+  public loadContactSearchResponse() {
+    const url = environment.services.customer.query + 'contact/query/contacts';
     const headers = this.authorizationService.header();
-    this.http.get<ContactRestResult>(url, {headers: headers})
+    this.http.get<ContactSearchResponseRestResult>(url, {headers: headers})
         .subscribe(response => {
-          this.contacts = response.contacts;
+          this.contactSearchResponseRestResult = response;
+          if (this.contactSearchResponseRestResult.searchResponses.length > 0) {
+            this.messageService.add({sticky: true, severity: 'success', summary: 'Kontakte erfolgreich geladen', detail: 'Anzahl Kontakte: ' + this.contactSearchResponseRestResult.searchResponses.length});
+          } else {
+            this.messageService.add({severity: 'warn', summary: 'Kontakte erfolgreich geladen', detail: 'Keine Kontakte im System vorhanden'});
+          }
+        }, error => {
+          this.messageService.add({severity: 'error', summary: 'Kontakte konnten nicht geladen werden'});
         });
   }
-
-  public addAddress() {
-    const childComponent = this.componentFactoryResolver.resolveComponentFactory(AddressComponent);
-    this.componentRef = this.target.createComponent(childComponent);
-  }
-
 }

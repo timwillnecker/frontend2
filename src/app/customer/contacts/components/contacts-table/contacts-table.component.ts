@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Contact} from '../../model/Contact';
+import {Contact, ContactSearchResponse, ContactSearchResponseRestResult} from '../../model/Contact';
 import {Router} from '@angular/router';
 
 @Component({
@@ -10,11 +10,10 @@ import {Router} from '@angular/router';
 export class ContactsTableComponent implements OnInit {
 
   @Input()
-  contacts: Contact[];
+  contacts: ContactSearchResponse [];
   constructor(private router: Router) { }
 
   ngOnInit() {
-    console.log(this.contacts);
   }
 
   openContact(contactReference: any) {

@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Address, Contact, ContactRestResult} from '../../../model/Contact';
 import {environment} from '../../../../../../environments/environment';
@@ -6,6 +6,7 @@ import {MessageService, SelectItem} from 'primeng/api';
 import {HttpClient} from '@angular/common/http';
 import {AuthorizationService} from '../../../../authorization/authorization.service';
 import {ContactService} from '../../../application/contact.service';
+import {ContactComponent} from '../../../components/contactInformation/contact/contact.component';
 
 @Component({
   selector: 'app-contact-page',
@@ -16,15 +17,16 @@ import {ContactService} from '../../../application/contact.service';
 })
 export class ContactPageComponent implements OnInit {
 
+  public activatedRouteParameter: string;
   public contact: Contact;
-  public contactRestResult: ContactRestResult;
+  public contactRestResult: ContactRestResult = new ContactRestResult();
   public salutations: SelectItem[];
   public selectedSalutation: SelectItem;
 
-  public contactType: SelectItem[];
+  public contactTypes: SelectItem[];
   public selectedContactType: SelectItem;
 
-  public contactSource: SelectItem[];
+  public contactSources: SelectItem[];
   public selectedContactSource: SelectItem;
 
   public countries: SelectItem[];
@@ -38,231 +40,133 @@ export class ContactPageComponent implements OnInit {
   constructor(private activatedRoute: ActivatedRoute,
               private http: HttpClient,
               private authorizationService: AuthorizationService,
-              private router: Router,
-              private messageService: MessageService,
               private contactService: ContactService) { }
 
   ngOnInit() {
     this.activatedRoute.params.subscribe( (params ) => {
-      const contactReference = params['contactReference'];
-      this.loadContact(contactReference);
+      this.activatedRouteParameter = params['contactReference'];
     });
-    this.loadSaltutations();
-    this.loadContactSource();
-    this.loadContactType();
+    this.getContact();
+    this.loadContactSalutations();
+    this.loadContactSources();
+    this.loadContactTypes();
     this.loadAddressTypes();
-    this.loadCountry();
+    this.loadCountries();
+    this.contactService.registerContactPageCompontent(this);
   }
 
-  public loadContact(contactReference: string) {
-    if (contactReference === '-1') {
-      this.contact = new Contact();
-      this.editContact(this.contact);
+  public getContact() {
+    if (this.activatedRouteParameter !== '-1') {
+      this.recreateContact();
     } else {
-      this.loadContactByReference(contactReference);
+      this.createContact();
     }
   }
 
-  public loadContactByReference(contactReference: string) {
-    this.contactRestResult = new ContactRestResult();
-    const url = environment.services.customer.query + 'contact/query/reference/' + contactReference;
+  public createContact() {
+    this.editContact(undefined);
+  }
+
+  public recreateContact() {
+    const url = environment.services.customer.query + 'contact/query/reference/' + this.activatedRouteParameter;
     const headers = this.authorizationService.header();
     this.http.get<ContactRestResult>(url, {headers: headers})
         .subscribe(response => {
-          console.log(response);
           this.contactRestResult = response;
           this.contact = this.contactRestResult.contacts[0];
           this.initSalutation();
           this.initContactType();
           this.initContactSource();
-          this.initContactBirthday(response.contacts[0]);
+          this.initContactBirthday(this.contactRestResult.contacts[0]);
         });
   }
 
-  public initSalutation() {
-    if (this.salutations !== undefined) {
-      this.salutations.forEach( s => {
-        if (this.contact.salutation === s.value) {
-          this.selectedSalutation = s;
-        }
-      });
-    }
+  public loadContactSalutations () {
+    this.contactService.loadContactSalutations().subscribe(response => {
+      this.salutations = response;
+    });
   }
-  public initContactType() {
-    if (this.contactType !== undefined) {
-      this.contactType.forEach( c => {
-        if (this.contact.contactType === c.value) {
-          this.selectedContactType = c;
-        }
-      });
-    }
+  public initSalutation() {
+    this.selectedSalutation = this.contactService.initSelectedItem(this.salutations, this.contact.salutation);
+  }
+
+  public loadContactSources () {
+    this.contactService.loadContactSources().subscribe(response => {
+      this.contactSources = response;
+    });
   }
   public initContactSource() {
-    if (this.contactSource !== undefined) {
-      this.contactSource.forEach( c => {
-        if (this.contact.contactSource === c.value) {
-          this.selectedContactSource = c;
-        }
-      });
-    }
+    this.selectedContactSource = this.contactService.initSelectedItem(this.contactSources, this.contact.contactSource);
   }
 
-
-  public loadSaltutations () {
-    const url = environment.services.customer.query + 'contact/query/salutations';
-    const headers = this.authorizationService.header();
-    this.http.get<SelectItem []>(url, {headers: headers})
-        .subscribe(response => {
-          this.salutations = response;
-        });
+  public loadContactTypes () {
+    this.contactService.loadContactTypes().subscribe(response => {
+      this.contactTypes = response;
+    });
+  }
+  public initContactType() {
+    this.selectedContactType = this.contactService.initSelectedItem(this.contactTypes, this.contact.contactType);
   }
 
+  public loadCountries() {
+    this.contactService.loadCountries().subscribe(response => {
+      this.countries = response;
+    });
+  }
   public loadAddressTypes() {
-    const url = environment.services.customer.query + 'address/query/addresstype';
-    const headers = this.authorizationService.header();
-    this.http.get<SelectItem []>(url, {headers: headers})
-        .subscribe(response => {
-          this.addressTypes = response;
-        });
-  }
-
-  public loadContactSource () {
-    const url = environment.services.customer.query + 'contact/query/contactsource';
-    const headers = this.authorizationService.header();
-    this.http.get<SelectItem []>(url, {headers: headers})
-        .subscribe(response => {
-          this.contactSource = response;
-        });
-  }
-
-  public loadCountry() {
-    const url = environment.services.customer.query + 'address/query/country';
-    const headers = this.authorizationService.header();
-    this.http.get<SelectItem []>(url, {headers: headers})
-        .subscribe(response => {
-          this.countries = response;
-        });
-  }
-
-  public loadContactType () {
-    const url = environment.services.customer.query + 'contact/query/contacttype';
-    const headers = this.authorizationService.header();
-    this.http.get<SelectItem []>(url, {headers: headers})
-        .subscribe(response => {
-          this.contactType = response;
-        });
-  }
-
-  onUpload(event) {
-    const formData: FormData = new FormData();
-    formData.append('file', event.files[0]);
-    const url = environment.services.customer.cmd + 'contact/cmd/upload';
-    const headers = this.authorizationService.header();
-    this.http.post(url, formData, {headers: headers})
-        .subscribe(res => {
-          console.log(res);
-        });
-  }
-
-  saveContact() {
-    if (this.contact.id < 0) {
-     this.createContact();
-    }
-  }
-
-  public createContact() {
-    const url = environment.services.customer.query + 'contact/cmd/';
-    const headers = this.authorizationService.header();
-    this.http.post<Contact>(url, this.contact, {headers: headers})
-        .subscribe(response => {
-          if (response.contactReference !== undefined && response.contactReference !== '') {
-            this.router.navigate(['/customer/' + response.contactReference]);
-            this.messageService.add({severity: 'success', summary: 'Kontakt erfolgreich angelegt', detail: response.firstname + ' ' + response.surname});
-          } else {
-            this.messageService.add({severity: 'error', summary: 'Kontakt konnte nicht angelegt werden'});
-          }
-        }, error => {
-          this.messageService.add({severity: 'error', summary: 'Kontakt konnte nicht angelegt werden', detail: error});
-        });
+    this.contactService.loadAddressTypes().subscribe(response => {
+      this.addressTypes = response;
+    });
   }
 
   public initContactBirthday(contact: Contact) {
-    const a = new Date(Date.parse(contact.birthday.toString()));
-    this.contact.birthday = a;
+    if ( contact !== undefined && contact.birthday !== undefined && contact.birthday !== null) {
+      const bDate = new Date(Date.parse(contact.birthday.toString()));
+      this.contact.birthday = bDate;
+    }
   }
 
-  public getAddressType(addressType: string): string {
-    let value = '';
-    if (addressType !== undefined && this.addressTypes !== undefined) {
-      this.addressTypes.forEach( a => {
-        if (addressType === a.value) {
-          value = a.label;
-        }
-      });
-    }
-    return value.toUpperCase();
+  public getSelectedItemLabel(array: SelectItem[], value: string): string {
+    return this.contactService.getSelectedItemLabel(array, value);
   }
 
-  public getCountry(country: string): string {
-    let value = '';
-    if (country !== undefined && this.countries !== undefined) {
-      this.countries.forEach(c => {
-        if (country === c.value) {
-          value = c.label;
-        }
-      });
+  public editAddress(address: Address) {
+    if (address === undefined) {
+      address = new Address();
     }
-    return value;
-  }
-
-  public getSalutation(salutation: string): string {
-    let value = '';
-    if (salutation !== undefined && this.salutations !== undefined) {
-      this.salutations.forEach(c => {
-        if (salutation === c.value) {
-          value = c.label;
-        }
-      });
-    }
-    return value;
-  }
-
-  public getContactType(contactType: string): string {
-    let value = '';
-    if (contactType !== undefined && this.contactType !== undefined) {
-      this.contactType.forEach(c => {
-        if (contactType === c.value) {
-          value = c.label;
-        }
-      });
-    }
-    return value.toUpperCase();
-  }
-  public getContactSource(contactSource: string): string {
-    let value = '';
-    if (contactSource !== undefined && this.contactSource !== undefined) {
-      this.contactSource.forEach(c => {
-        if (contactSource === c.value) {
-          value = c.label;
-        }
-      });
-    }
-    return value;
-  }
-
-  public changeAddress(address: Address) {
     this.sidebarCreateAddress = !this.sidebarCreateAddress;
     this.contactService.editAddress(address);
   }
 
-  public addAddress() {
-    const address = new Address();
-    this.sidebarCreateAddress = !this.sidebarCreateAddress;
-    this.contactService.editAddress(address);
-  }
-
-  editContact(contact: Contact) {
-    this.contactService.editContact(contact);
+  public editContact(contact: Contact) {
+    if (contact === undefined) {
+      contact = new Contact();
+    }
     this.sidebarEditContact = !this.sidebarEditContact;
+    this.contactService.editContact(contact);
+  }
+
+  // onUpload(event) {
+  //   const formData: FormData = new FormData();
+  //   formData.append('file', event.files[0]);
+  //   const url = environment.services.customer.cmd + 'contact/cmd/upload';
+  //   const headers = this.authorizationService.header();
+  //   this.http.post(url, formData, {headers: headers})
+  //       .subscribe(res => {
+  //         console.log(res);
+  //       });
+  // }
+
+  public reload (contactreference: string) {
+    this.sidebarEditContact = false;
+    this.sidebarCreateAddress = false;
+    this.activatedRouteParameter = contactreference;
+    this.getContact();
+    this.loadContactSalutations();
+    this.loadContactSources();
+    this.loadContactTypes();
+    this.loadAddressTypes();
+    this.loadCountries();
+    this.contactService.registerContactPageCompontent(this);
   }
 }
